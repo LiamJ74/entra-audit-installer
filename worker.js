@@ -1,80 +1,72 @@
-// =============================================================================
-// CodeRaft Installer — Cloudflare Worker
-// Routes install.coderaft.io/<product> to the correct install script
-// =============================================================================
-
-const REPO_BASE = 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main';
-
-const PRODUCTS = {
-  '/entra-audit': {
-    script: `${REPO_BASE}/entra-audit.sh`,
-    name: 'Entra Audit',
-  },
-  // '/secaudit': {
-  //   script: `${REPO_BASE}/secaudit.sh`,
-  //   name: 'SecAudit',
-  // },
-};
-
-const HELP_TEXT = `
-  ╔══════════════════════════════════════╗
-  ║     CodeRaft Installer              ║
-  ╚══════════════════════════════════════╝
-
-  Usage:
-
-    curl -sL https://install.coderaft.io/entra-audit | bash
-
-  Available products:
-
-    /entra-audit    Entra ID Security Audit Tool
-
-  More info: https://coderaft.io
-`;
-
 export default {
   async fetch(request) {
-    const url = new URL(request.url);
-    const path = url.pathname.replace(/\/+$/, '') || '/';
+    try {
+      const url = new URL(request.url);
+      let path = url.pathname;
 
-    // Root — show help
-    if (path === '/') {
-      return new Response(HELP_TEXT, {
-        headers: { 'content-type': 'text/plain; charset=utf-8' },
-      });
-    }
+      // Normalise le path (mais garde "/" intact)
+      if (path.length > 1 && path.endsWith('/')) {
+        path = path.slice(0, -1);
+      }
 
-    // Known product — proxy the install script
-    const product = PRODUCTS[path];
-    if (product) {
-      const resp = await fetch(product.script, {
-        headers: { 'User-Agent': 'CodeRaft-Installer/1.0' },
-      });
+      const scripts = {
+        '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.sh',
+        '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/secaudit-installer/main/install.sh',
+      };
+
+      // Racine → page d'aide
+      if (path === '/') {
+        return new Response(
+`CodeRaft Installer
+
+Usage:
+  curl -sL https://install.coderaft.io/entra-audit | bash
+  curl -sL https://install.coderaft.io/secaudit | bash
+`,
+          { headers: { 'content-type': 'text/plain; charset=utf-8' } }
+        );
+      }
+
+      const target = scripts[path];
+
+      if (!target) {
+        return new Response(
+`Unknown product: ${path}
+
+Available:
+  /entra-audit
+  /secaudit
+`,
+          {
+            status: 404,
+            headers: { 'content-type': 'text/plain; charset=utf-8' },
+          }
+        );
+      }
+
+      // Proxy le script depuis GitHub
+      const resp = await fetch(target);
 
       if (!resp.ok) {
-        return new Response(`Error: failed to fetch ${product.name} installer.\n`, {
-          status: 502,
-          headers: { 'content-type': 'text/plain' },
-        });
+        return new Response(
+          `Failed to fetch installer script (${resp.status}).\n`,
+          { status: 502 }
+        );
       }
 
       return new Response(resp.body, {
+        status: resp.status,
         headers: {
           'content-type': 'text/plain; charset=utf-8',
           'cache-control': 'public, max-age=300',
-          'x-product': product.name,
         },
       });
-    }
 
-    // Unknown product
-    const available = Object.keys(PRODUCTS).map((p) => `    ${p}`).join('\n');
-    return new Response(
-      `Unknown product: ${path}\n\nAvailable products:\n${available}\n\nUsage: curl -sL https://install.coderaft.io/entra-audit | bash\n`,
-      {
-        status: 404,
-        headers: { 'content-type': 'text/plain; charset=utf-8' },
-      },
-    );
+    } catch (err) {
+      return new Response(
+        `Internal error: ${err.message}\n`,
+        { status: 500 }
+      );
+    }
   },
 };
