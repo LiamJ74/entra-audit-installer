@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
 # Entra Audit - One-line installer
-# Usage: curl -sL https://install.coderaft.io | bash
+# Usage: curl -sL https://install.coderaft.io/entra-audit | bash
 # =============================================================================
 
 set -e
