@@ -75,6 +75,20 @@ services:
       - ./.env:/opt/app/.env
     restart: unless-stopped
 
+  beat:
+    image: ghcr.io/liamj74/entra-audit-worker:latest
+    command: celery -A app.celery_app beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./.env:/opt/app/.env
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     environment:

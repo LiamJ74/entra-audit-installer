@@ -1,5 +1,5 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
       let path = url.pathname;
@@ -10,8 +10,13 @@ export default {
       }
 
       const scripts = {
+        '/entraguard': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.sh',
+        '/entraguard.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.ps1',
+        '/ravenscan': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.sh',
+        '/ravenscan.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.ps1',
+        // Legacy aliases
         '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.sh',
-        '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/secaudit-installer/main/install.sh',
+        '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.sh',
       };
 
       // Racine → page d'aide
@@ -19,9 +24,13 @@ export default {
         return new Response(
 `CodeRaft Installer
 
-Usage:
-  curl -sL https://install.coderaft.io/entra-audit | bash
-  curl -sL https://install.coderaft.io/secaudit | bash
+Usage (Linux / macOS):
+  curl -sL https://install.coderaft.io/entraguard | bash
+  curl -sL https://install.coderaft.io/ravenscan | bash
+
+Usage (Windows / PowerShell):
+  irm https://install.coderaft.io/entraguard.ps1 | iex
+  irm https://install.coderaft.io/ravenscan.ps1 | iex
 `,
           { headers: { 'content-type': 'text/plain; charset=utf-8' } }
         );
@@ -34,8 +43,8 @@ Usage:
 `Unknown product: ${path}
 
 Available:
-  /entra-audit
-  /secaudit
+  /entraguard
+  /ravenscan
 `,
           {
             status: 404,
@@ -44,8 +53,21 @@ Available:
         );
       }
 
-      // Proxy le script depuis GitHub
-      const resp = await fetch(target);
+      // Cache Cloudflare
+      const cache = caches.default;
+      const cacheKey = new Request(request.url, request);
+      let response = await cache.match(cacheKey);
+
+      if (response) {
+        return response;
+      }
+
+      const resp = await fetch(target, {
+        headers: {
+          'User-Agent': 'CodeRaft-Installer',
+          'Accept': 'text/plain',
+        },
+      });
 
       if (!resp.ok) {
         return new Response(
@@ -54,13 +76,17 @@ Available:
         );
       }
 
-      return new Response(resp.body, {
-        status: resp.status,
+      response = new Response(resp.body, {
+        status: 200,
         headers: {
           'content-type': 'text/plain; charset=utf-8',
           'cache-control': 'public, max-age=300',
         },
       });
+
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+
+      return response;
 
     } catch (err) {
       return new Response(
