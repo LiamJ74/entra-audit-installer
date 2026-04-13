@@ -1,18 +1,18 @@
 #!/bin/bash
 # =============================================================================
-# Entra Audit - One-line installer
-# Usage: curl -sL https://install.coderaft.io/entra-audit | bash
+# EntraGuard - One-line installer
+# Usage: curl -sL https://install.coderaft.io/entraguard | bash
 # =============================================================================
 
 set -e
 
-INSTALL_DIR="${INSTALL_DIR:-./entra-audit}"
+INSTALL_DIR="${INSTALL_DIR:-./entraguard}"
 REGISTRY="ghcr.io/liamj74"
 VERSION="latest"
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
-echo "  ║       Entra Audit - Installer        ║"
+echo "  ║       EntraGuard - Installer        ║"
 echo "  ║    Security Analysis Platform         ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
@@ -147,7 +147,7 @@ COMPOSE
 # Write .env template
 echo "  Writing .env configuration..."
 cat > .env << 'ENVFILE'
-# Entra Audit - Configuration
+# EntraGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
 
 LICENSE_KEY=
@@ -163,7 +163,7 @@ DATABASE_URL=postgresql+asyncpg://audit_entra:audit_entra_prod@postgres:5432/aud
 REDIS_URL=redis://redis:6379/0
 CELERY_BROKER_URL=redis://redis:6379/1
 CELERY_RESULT_BACKEND=redis://redis:6379/2
-APP_NAME=Audit Entra
+APP_NAME=EntraGuard
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 REPORTS_PATH=/opt/app/reports
@@ -172,10 +172,10 @@ ENVFILE
 # Write helper scripts
 cat > start.sh << 'START'
 #!/bin/bash
-echo "Starting Entra Audit..."
+echo "Starting EntraGuard..."
 docker-compose up -d
 echo ""
-echo "  Entra Audit is running!"
+echo "  EntraGuard is running!"
 echo "  Open: http://localhost:3000"
 if command -v open &> /dev/null; then open http://localhost:3000; fi
 if command -v xdg-open &> /dev/null; then xdg-open http://localhost:3000; fi
@@ -184,7 +184,7 @@ chmod +x start.sh
 
 cat > stop.sh << 'STOP'
 #!/bin/bash
-echo "Stopping Entra Audit..."
+echo "Stopping EntraGuard..."
 docker-compose down
 echo "Done."
 STOP
@@ -192,7 +192,7 @@ chmod +x stop.sh
 
 cat > update.sh << 'UPDATE'
 #!/bin/bash
-echo "Updating Entra Audit..."
+echo "Updating EntraGuard..."
 docker-compose pull
 docker-compose up -d
 echo "Updated!"

@@ -1,15 +1,15 @@
 # =============================================================================
-# Entra Audit - One-line installer (PowerShell)
+# EntraGuard - One-line installer (PowerShell)
 # Usage: irm https://install.coderaft.io/entraguard.ps1 | iex
 # =============================================================================
 
 $ErrorActionPreference = 'Stop'
 
-$InstallDir = if ($env:INSTALL_DIR) { $env:INSTALL_DIR } else { 'entra-audit' }
+$InstallDir = if ($env:INSTALL_DIR) { $env:INSTALL_DIR } else { 'entraguard' }
 
 Write-Host ""
 Write-Host "  ╔══════════════════════════════════════╗"
-Write-Host "  ║       Entra Audit - Installer        ║"
+Write-Host "  ║       EntraGuard - Installer        ║"
 Write-Host "  ║    Security Analysis Platform        ║"
 Write-Host "  ╚══════════════════════════════════════╝"
 Write-Host ""
@@ -147,7 +147,7 @@ Set-Content -Path 'docker-compose.yml' -Value $Compose -Encoding UTF8
 
 Write-Host "  Writing .env configuration..."
 $Env = @'
-# Entra Audit - Configuration
+# EntraGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
 
 LICENSE_KEY=
@@ -163,7 +163,7 @@ DATABASE_URL=postgresql+asyncpg://audit_entra:audit_entra_prod@postgres:5432/aud
 REDIS_URL=redis://redis:6379/0
 CELERY_BROKER_URL=redis://redis:6379/1
 CELERY_RESULT_BACKEND=redis://redis:6379/2
-APP_NAME=Audit Entra
+APP_NAME=EntraGuard
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 REPORTS_PATH=/opt/app/reports
@@ -172,22 +172,22 @@ Set-Content -Path '.env' -Value $Env -Encoding UTF8
 
 # Helper scripts
 Set-Content -Path 'start.ps1' -Value @'
-Write-Host "Starting Entra Audit..."
+Write-Host "Starting EntraGuard..."
 docker compose up -d
 Write-Host ""
-Write-Host "  Entra Audit is running!"
+Write-Host "  EntraGuard is running!"
 Write-Host "  Open: http://localhost:3000"
 Start-Process "http://localhost:3000"
 '@ -Encoding UTF8
 
 Set-Content -Path 'stop.ps1' -Value @'
-Write-Host "Stopping Entra Audit..."
+Write-Host "Stopping EntraGuard..."
 docker compose down
 Write-Host "Done."
 '@ -Encoding UTF8
 
 Set-Content -Path 'update.ps1' -Value @'
-Write-Host "Updating Entra Audit..."
+Write-Host "Updating EntraGuard..."
 docker compose pull
 docker compose up -d
 Write-Host "Updated!"
