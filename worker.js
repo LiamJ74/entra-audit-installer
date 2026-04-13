@@ -10,13 +10,13 @@ export default {
       }
 
       const scripts = {
-        '/entraguard': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.sh',
-        '/entraguard.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.ps1',
-        '/ravenscan': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.sh',
-        '/ravenscan.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.ps1',
+        '/entraguard': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
+        '/entraguard.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.ps1',
+        '/ravenscan': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
+        '/ravenscan.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.ps1',
         // Legacy aliases
-        '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/main/install.sh',
-        '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/main/install.sh',
+        '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
+        '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
       };
 
       // Racine → page d'aide
