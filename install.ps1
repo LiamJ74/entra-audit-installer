@@ -145,16 +145,36 @@ volumes:
 '@
 Set-Content -Path 'docker-compose.yml' -Value $Compose -Encoding UTF8
 
+# Preserve an existing master key if the user is reinstalling, otherwise
+# generate a fresh random one. This key is REQUIRED to decrypt the license
+# and Azure client_secret stored in the database.
+$MasterKey = $null
+if (Test-Path '.env') {
+    $ExistingLine = Select-String -Path '.env' -Pattern '^TENANT_ENCRYPTION_KEY=' -SimpleMatch:$false -List
+    if ($ExistingLine) {
+        $MasterKey = ($ExistingLine.Line -replace '^TENANT_ENCRYPTION_KEY=', '').Trim()
+    }
+}
+if (-not $MasterKey) {
+    $bytes = New-Object byte[] 32
+    [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+    $MasterKey = [Convert]::ToBase64String($bytes)
+}
+
+# .env is infrastructure-only. Secrets (license, Azure client_secret) live
+# encrypted in the database using TENANT_ENCRYPTION_KEY as the master key.
+# Stealing .env alone or the DB alone both yield nothing.
 Write-Host "  Writing .env configuration..."
-$Env = @'
+$Env = @"
 # EntraGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
+# Secrets (license key, Azure client_secret) are NEVER stored here anymore.
+# They live encrypted in the database; this file only holds the master key.
 
-LICENSE_KEY=
+TENANT_ENCRYPTION_KEY=$MasterKey
 CREDENTIAL_PROVIDER=environment
 AZURE_TENANT_ID=
 AZURE_CLIENT_ID=
-AZURE_CLIENT_SECRET=
 AZURE_UI_CLIENT_ID=
 NEO4J_URI=bolt://neo4j:7687
 NEO4J_USER=neo4j
@@ -167,7 +187,7 @@ APP_NAME=EntraGuard
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 REPORTS_PATH=/opt/app/reports
-'@
+"@
 Set-Content -Path '.env' -Value $Env -Encoding UTF8
 
 # Helper scripts

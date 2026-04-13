@@ -144,17 +144,31 @@ volumes:
   reports_data:
 COMPOSE
 
-# Write .env template
+# Generate a random master encryption key if one doesn't already exist.
+# This key is REQUIRED to decrypt the license + Azure client secret stored
+# in the database. Losing it makes the DB unreadable.
+if [ -f .env ] && grep -q '^TENANT_ENCRYPTION_KEY=' .env 2>/dev/null; then
+  MASTER_KEY=$(grep '^TENANT_ENCRYPTION_KEY=' .env | cut -d= -f2-)
+else
+  MASTER_KEY=$(openssl rand -base64 32 2>/dev/null || head -c 32 /dev/urandom | base64)
+fi
+
+# Write .env template — infrastructure only. NO secrets live here.
+# The license key and Azure client_secret are entered via the Setup Wizard
+# and stored encrypted in Postgres (app_config + tenants tables) using
+# TENANT_ENCRYPTION_KEY as the symmetric key. A copy of .env alone is
+# therefore useless; the DB alone is also useless.
 echo "  Writing .env configuration..."
-cat > .env << 'ENVFILE'
+cat > .env << ENVFILE
 # EntraGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
+# Secrets (license key, Azure client_secret) are NEVER stored here anymore.
+# They live encrypted in the database; this file only holds the master key.
 
-LICENSE_KEY=
+TENANT_ENCRYPTION_KEY=${MASTER_KEY}
 CREDENTIAL_PROVIDER=environment
 AZURE_TENANT_ID=
 AZURE_CLIENT_ID=
-AZURE_CLIENT_SECRET=
 AZURE_UI_CLIENT_ID=
 NEO4J_URI=bolt://neo4j:7687
 NEO4J_USER=neo4j
