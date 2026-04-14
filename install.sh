@@ -28,7 +28,11 @@ check_command() {
 
 echo "  Checking prerequisites..."
 check_command docker
-check_command docker-compose || check_command "docker compose"
+if ! docker compose version &> /dev/null; then
+    echo "  ✗ Docker Compose v2 (docker compose) is required."
+    exit 1
+fi
+echo "  ✓ docker compose found"
 echo ""
 
 # Create install directory
@@ -36,9 +40,9 @@ echo "  Creating installation directory: ${INSTALL_DIR}"
 mkdir -p "${INSTALL_DIR}"
 cd "${INSTALL_DIR}"
 
-# Write docker-compose.yml
-echo "  Writing docker-compose.yml..."
-cat > docker-compose.yml << 'COMPOSE'
+# Write docker compose.yml
+echo "  Writing docker compose.yml..."
+cat > docker compose.yml << 'COMPOSE'
 services:
   api:
     image: ghcr.io/liamj74/entra-audit-api:latest
@@ -144,22 +148,14 @@ volumes:
   reports_data:
 COMPOSE
 
-# Generate a random master encryption key if one doesn't already exist.
-# This key is REQUIRED to decrypt the license + Azure client secret stored
-# in the database. Losing it makes the DB unreadable.
+# If .env already exists, preserve it entirely (user config, secrets, etc.).
+# Only generate a fresh .env on first install.
 if [ -f .env ] && grep -q '^TENANT_ENCRYPTION_KEY=' .env 2>/dev/null; then
-  MASTER_KEY=$(grep '^TENANT_ENCRYPTION_KEY=' .env | cut -d= -f2-)
+  echo "  ✓ Existing .env detected — keeping current configuration"
 else
   MASTER_KEY=$(openssl rand -base64 32 2>/dev/null || head -c 32 /dev/urandom | base64)
-fi
-
-# Write .env template — infrastructure only. NO secrets live here.
-# The license key and Azure client_secret are entered via the Setup Wizard
-# and stored encrypted in Postgres (app_config + tenants tables) using
-# TENANT_ENCRYPTION_KEY as the symmetric key. A copy of .env alone is
-# therefore useless; the DB alone is also useless.
-echo "  Writing .env configuration..."
-cat > .env << ENVFILE
+  echo "  Writing .env configuration..."
+  cat > .env << ENVFILE
 # EntraGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
 # Secrets (license key, Azure client_secret) are NEVER stored here anymore.
@@ -182,12 +178,15 @@ LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 REPORTS_PATH=/opt/app/reports
 ENVFILE
+  chmod 600 .env
+  echo "  ✓ Generated .env with new master key"
+fi
 
 # Write helper scripts
 cat > start.sh << 'START'
 #!/bin/bash
 echo "Starting EntraGuard..."
-docker-compose up -d
+docker compose up -d
 echo ""
 echo "  EntraGuard is running!"
 echo "  Open: http://localhost:3000"
@@ -199,7 +198,7 @@ chmod +x start.sh
 cat > stop.sh << 'STOP'
 #!/bin/bash
 echo "Stopping EntraGuard..."
-docker-compose down
+docker compose down
 echo "Done."
 STOP
 chmod +x stop.sh
@@ -207,8 +206,8 @@ chmod +x stop.sh
 cat > update.sh << 'UPDATE'
 #!/bin/bash
 echo "Updating EntraGuard..."
-docker-compose pull
-docker-compose up -d
+docker compose pull
+docker compose up -d
 echo "Updated!"
 UPDATE
 chmod +x update.sh
@@ -216,12 +215,12 @@ chmod +x update.sh
 # Pull images
 echo ""
 echo "  Pulling Docker images (this may take a few minutes)..."
-docker-compose pull
+docker compose pull
 
 # Start services
 echo ""
 echo "  Starting services..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 echo "  Waiting for services to be ready..."
