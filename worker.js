@@ -14,6 +14,8 @@ export default {
         '/entraguard.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.ps1',
         '/ravenscan': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
         '/ravenscan.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.ps1',
+        '/redfox': 'https://raw.githubusercontent.com/LiamJ74/redfox-installer/master/install.sh',
+        '/redfox.ps1': 'https://raw.githubusercontent.com/LiamJ74/redfox-installer/master/install.ps1',
         // Legacy aliases
         '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
         '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
@@ -27,10 +29,12 @@ export default {
 Usage (Linux / macOS):
   curl -sL https://install.coderaft.io/entraguard | bash
   curl -sL https://install.coderaft.io/ravenscan | bash
+  curl -sL https://install.coderaft.io/redfox | bash
 
 Usage (Windows / PowerShell):
   irm https://install.coderaft.io/entraguard.ps1 | iex
   irm https://install.coderaft.io/ravenscan.ps1 | iex
+  irm https://install.coderaft.io/redfox.ps1 | iex
 `,
           { headers: { 'content-type': 'text/plain; charset=utf-8' } }
         );
@@ -45,6 +49,7 @@ Usage (Windows / PowerShell):
 Available:
   /entraguard
   /ravenscan
+  /redfox
 `,
           {
             status: 404,
