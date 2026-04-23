@@ -10,31 +10,45 @@ export default {
       }
 
       const scripts = {
+        // Unified platform installer (dashboard deploys products based on license)
+        '/': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/install.sh',
+        '/win': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/install.ps1',
+        // Per-product installers
         '/entraguard': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
         '/entraguard.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.ps1',
         '/ravenscan': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
         '/ravenscan.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.ps1',
-        '/redfox': 'https://raw.githubusercontent.com/LiamJ74/redfox-installer/master/install.sh',
-        '/redfox.ps1': 'https://raw.githubusercontent.com/LiamJ74/redfox-installer/master/install.ps1',
+        '/redfox': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/install.sh',
+        '/redfox.ps1': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/install.ps1',
+        // Update scripts (self-updating)
+        '/update': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/scripts/update.sh',
+        '/update.ps1': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/scripts/update.ps1',
         // Legacy aliases
         '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
         '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
       };
 
-      // Racine → page d'aide
-      if (path === '/') {
+      // Racine → serve unified installer script (for curl | bash)
+      // Browser visitors get help text instead
+      const ua = request.headers.get('user-agent') || '';
+      if (path === '/' && (ua.includes('Mozilla') || ua.includes('Chrome'))) {
         return new Response(
-`CodeRaft Installer
+`CodeRaft Platform Installer
 
-Usage (Linux / macOS):
-  curl -sL https://install.coderaft.io/entraguard | bash
-  curl -sL https://install.coderaft.io/ravenscan | bash
-  curl -sL https://install.coderaft.io/redfox | bash
+Install (Linux / macOS):
+  curl -fsSL https://install.coderaft.io | bash
 
-Usage (Windows / PowerShell):
-  irm https://install.coderaft.io/entraguard.ps1 | iex
-  irm https://install.coderaft.io/ravenscan.ps1 | iex
-  irm https://install.coderaft.io/redfox.ps1 | iex
+Install (Windows / PowerShell):
+  irm https://install.coderaft.io/win | iex
+
+Update (Linux / macOS):
+  curl -fsSL https://install.coderaft.io/update | bash
+
+Update (Windows / PowerShell):
+  irm https://install.coderaft.io/update.ps1 | iex
+
+The installer deploys the CodeRaft Dashboard.
+Activate your license in the dashboard to deploy your products.
 `,
           { headers: { 'content-type': 'text/plain; charset=utf-8' } }
         );
