@@ -23,6 +23,11 @@ export default {
         // Update scripts (self-updating)
         '/update': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/scripts/update.sh',
         '/update.ps1': 'https://raw.githubusercontent.com/LiamJ74/coderaft-installer/master/scripts/update.ps1',
+        // Per-product update scripts
+        '/ravenscan/update': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/scripts/update.sh',
+        '/ravenscan/update.ps1': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/scripts/update.ps1',
+        '/entraguard/update': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/scripts/update.sh',
+        '/entraguard/update.ps1': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/scripts/update.ps1',
         // Legacy aliases
         '/entra-audit': 'https://raw.githubusercontent.com/LiamJ74/entra-audit-installer/master/install.sh',
         '/secaudit': 'https://raw.githubusercontent.com/LiamJ74/ravenscan-installer/master/install.sh',
