@@ -35,37 +35,6 @@ fi
 echo "  ✓ docker compose found"
 echo ""
 
-# Cosign signature verification (Sigstore keyless OIDC).
-# Set SKIP_COSIGN_VERIFY=1 to bypass (not recommended).
-# Set STRICT_COSIGN_VERIFY=1 to fail when cosign is missing or signature absent.
-verify_image_signature() {
-    local image="$1"
-    if [ "${SKIP_COSIGN_VERIFY:-}" = "1" ]; then
-        return 0
-    fi
-    if ! command -v cosign &> /dev/null; then
-        if [ "${STRICT_COSIGN_VERIFY:-}" = "1" ]; then
-            echo "  ✗ cosign required (STRICT_COSIGN_VERIFY=1). Install: https://docs.sigstore.dev/cosign/installation"
-            exit 1
-        fi
-        echo "  ⚠ cosign not installed — skipping signature verification (set STRICT_COSIGN_VERIFY=1 to enforce)"
-        return 0
-    fi
-    echo "  Verifying signature for ${image}..."
-    if cosign verify \
-        --certificate-identity-regexp="^https://github.com/LiamJ74/" \
-        --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
-        "${image}" > /dev/null 2>&1; then
-        echo "  ✓ Signature valid: ${image}"
-    else
-        if [ "${STRICT_COSIGN_VERIFY:-}" = "1" ]; then
-            echo "  ✗ Signature verification FAILED for ${image} (STRICT_COSIGN_VERIFY=1)"
-            exit 1
-        fi
-        echo "  ⚠ Signature missing or invalid: ${image} (continuing — set STRICT_COSIGN_VERIFY=1 to enforce)"
-    fi
-}
-
 # Create install directory
 echo "  Creating installation directory: ${INSTALL_DIR}"
 mkdir -p "${INSTALL_DIR}"
@@ -242,16 +211,6 @@ docker compose up -d
 echo "Updated!"
 UPDATE
 chmod +x update.sh
-
-# Verify image signatures before pulling (supply-chain security)
-echo ""
-echo "  Verifying image signatures..."
-for img in \
-    "${REGISTRY}/entra-audit-api:${VERSION}" \
-    "${REGISTRY}/entra-audit-worker:${VERSION}" \
-    "${REGISTRY}/entra-audit-frontend:${VERSION}"; do
-    verify_image_signature "${img}"
-done
 
 # Pull images
 echo ""
