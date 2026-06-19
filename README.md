@@ -2,14 +2,14 @@
 
 **This repository is no longer used.**
 
-EntraGuard is now installed and updated through the unified Coderaft Platform
+WolfGuard is now installed and updated through the unified Coderaft Platform
 oneliner:
 
 ```bash
 curl -fsSL https://install.coderaft.io | bash
 ```
 
-The platform dashboard activates a license, then deploys EntraGuard
+The platform dashboard activates a license, then deploys WolfGuard
 (and any other licensed product — Ravenscan, RedFox, Sentinel) via Docker.
 There is no per-product installer.
 

@@ -3,7 +3,7 @@
 This repo serves double duty:
 
 1. **Cloudflare Worker** routing for `install.coderaft.io` (serves ALL coderaft products)
-2. **EntraGuard installer scripts** (`install.sh` / `install.ps1`)
+2. **WolfGuard installer scripts** (`install.sh` / `install.ps1`)
 
 ## Cloudflare Worker (`worker.js`)
 
@@ -23,7 +23,7 @@ Legacy aliases (`/entra-audit`, `/secaudit`) also exist -- do not remove.
 - **Deployment**: Cloudflare Dashboard or `wrangler deploy`.
 - **Root `/`**: Returns a plain-text usage page.
 
-## EntraGuard installer (`install.sh` / `install.ps1`)
+## WolfGuard installer (`install.sh` / `install.ps1`)
 
 The scripts:
 1. Check prerequisites (Docker, Docker Compose v2)

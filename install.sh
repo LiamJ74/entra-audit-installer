@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# EntraGuard - One-line installer
+# WolfGuard - One-line installer
 # Usage: curl -sL https://install.coderaft.io/entraguard | bash
 # =============================================================================
 
@@ -12,7 +12,7 @@ VERSION="latest"
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
-echo "  ║       EntraGuard - Installer        ║"
+echo "  ║       WolfGuard - Installer        ║"
 echo "  ║    Security Analysis Platform         ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
@@ -156,7 +156,7 @@ else
   MASTER_KEY=$(openssl rand -base64 32 2>/dev/null || head -c 32 /dev/urandom | base64)
   echo "  Writing .env configuration..."
   cat > .env << ENVFILE
-# EntraGuard - Configuration
+# WolfGuard - Configuration
 # The Setup Wizard at http://localhost:3000 will help you fill this in
 # Secrets (license key, Azure client_secret) are NEVER stored here anymore.
 # They live encrypted in the database; this file only holds the master key.
@@ -173,7 +173,7 @@ DATABASE_URL=postgresql+asyncpg://audit_entra:audit_entra_prod@postgres:5432/aud
 REDIS_URL=redis://redis:6379/0
 CELERY_BROKER_URL=redis://redis:6379/1
 CELERY_RESULT_BACKEND=redis://redis:6379/2
-APP_NAME=EntraGuard
+APP_NAME=WolfGuard
 LOG_LEVEL=INFO
 CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 REPORTS_PATH=/opt/app/reports
@@ -185,10 +185,10 @@ fi
 # Write helper scripts
 cat > start.sh << 'START'
 #!/bin/bash
-echo "Starting EntraGuard..."
+echo "Starting WolfGuard..."
 docker compose up -d
 echo ""
-echo "  EntraGuard is running!"
+echo "  WolfGuard is running!"
 echo "  Open: http://localhost:3000"
 if command -v open &> /dev/null; then open http://localhost:3000; fi
 if command -v xdg-open &> /dev/null; then xdg-open http://localhost:3000; fi
@@ -197,7 +197,7 @@ chmod +x start.sh
 
 cat > stop.sh << 'STOP'
 #!/bin/bash
-echo "Stopping EntraGuard..."
+echo "Stopping WolfGuard..."
 docker compose down
 echo "Done."
 STOP
@@ -205,7 +205,7 @@ chmod +x stop.sh
 
 cat > update.sh << 'UPDATE'
 #!/bin/bash
-echo "Updating EntraGuard..."
+echo "Updating WolfGuard..."
 docker compose pull
 docker compose up -d
 echo "Updated!"
